@@ -54,34 +54,23 @@ textarea{min-height:80px}
 
 </div>
 
-
 <div id="app" class="hidden">
 
 <nav>
 
 <button class="active" onclick="sayfa('ana',this)">Ana Sayfa</button>
-
 <button onclick="sayfa('musteri',this)">Müşteriler</button>
-
 <button onclick="sayfa('traktor',this)">Araçlar</button>
-
 <button onclick="sayfa('servis',this)">Servis</button>
-
 <button onclick="sayfa('hafiza',this)">🧠 Hafıza</button>
-
 <button onclick="sayfa('parca',this)">Parçalar</button>
-
 <button onclick="sayfa('stok',this)">Stok</button>
-
 <button onclick="sayfa('bakim',this)">🔔 Bakım</button>
-
 <button onclick="cikis()">Çıkış</button>
 
 </nav>
 
-
 <main>
-
 
 <section id="ana" class="page active">
 
@@ -112,15 +101,11 @@ Parça
 </div>
 
 <div class="card">
-
 <h3>Son Servisler</h3>
-
 <div id="sonServis"></div>
-
 </div>
 
 </section>
-
 
 <section id="musteri" class="page">
 
@@ -129,9 +114,7 @@ Parça
 <div class="card">
 
 <input id="mAd" placeholder="Müşteri / Firma adı">
-
 <input id="mTel" placeholder="Telefon">
-
 <textarea id="mNot" placeholder="Not"></textarea>
 
 <button class="btn" onclick="musteriEkle()">Müşteri Kaydet</button>
@@ -142,7 +125,6 @@ Parça
 
 </section>
 
-
 <section id="traktor" class="page">
 
 <h2>🚜 Araçlar</h2>
@@ -152,9 +134,7 @@ Parça
 <select id="tMusteri"></select>
 
 <input id="tModel" placeholder="Marka / Model">
-
 <input id="tSeri" placeholder="Şase / Plaka / Seri No">
-
 <input id="tSaat" type="number" placeholder="Km / Çalışma saati">
 
 <textarea id="tNot" placeholder="Araç notu"></textarea>
@@ -166,7 +146,6 @@ Parça
 <div id="tListe"></div>
 
 </section>
-
 
 <section id="servis" class="page">
 
@@ -196,7 +175,6 @@ Parça
 
 </section>
 
-
 <section id="hafiza" class="page">
 
 <h2>🧠 Ustanın Dijital Hafızası</h2>
@@ -220,7 +198,6 @@ Benzer Arızaları Bul
 
 </section>
 
-
 <section id="parca" class="page">
 
 <h2>🔩 Parça Kataloğu</h2>
@@ -228,11 +205,8 @@ Benzer Arızaları Bul
 <div class="card">
 
 <input id="pNo" placeholder="OEM / Parça numarası">
-
 <input id="pAd" placeholder="Parça adı">
-
 <input id="pMarka" placeholder="Marka">
-
 <input id="pModel" placeholder="Uyumlu model">
 
 <button class="btn" onclick="parcaEkle()">Parça Kaydet</button>
@@ -243,7 +217,6 @@ Benzer Arızaları Bul
 
 </section>
 
-
 <section id="stok" class="page">
 
 <h2>📦 Stok</h2>
@@ -253,11 +226,8 @@ Benzer Arızaları Bul
 <input id="stokNo" placeholder="Parça numarası">
 
 <select id="stokTip">
-
 <option value="in">Stok Girişi</option>
-
 <option value="out">Stok Çıkışı</option>
-
 </select>
 
 <input id="stokAdet" type="number" placeholder="Adet">
@@ -270,7 +240,6 @@ Benzer Arızaları Bul
 
 </section>
 
-
 <section id="bakim" class="page">
 
 <h2>🔔 Müşteri Bakım Hatırlatması</h2>
@@ -280,29 +249,19 @@ Benzer Arızaları Bul
 <select id="bArac"></select>
 
 <select id="bSure">
-
 <option value="1">1 ay</option>
-
 <option value="3">3 ay</option>
-
 <option value="6">6 ay</option>
-
 <option value="12">1 yıl</option>
-
 <option value="custom">Özel tarih</option>
-
 </select>
 
 <input id="bTarih" type="date">
 
 <select id="bKanal">
-
 <option value="email">E-posta</option>
-
 <option value="whatsapp">WhatsApp</option>
-
 <option value="sms">SMS</option>
-
 </select>
 
 <input id="bMesaj" placeholder="Mesaj">
@@ -317,11 +276,8 @@ Bakım Hatırlatması Planla
 
 </section>
 
-
 </main>
-
 </div>
-
 
 <script>
 
@@ -337,7 +293,6 @@ SUPABASE_URL,
 SUPABASE_KEY
 );
 
-
 let kullanici=null;
 
 let musteriler=[];
@@ -346,7 +301,6 @@ let servisler=[];
 let parcalar=[];
 let stoklar=[];
 let bakimlar=[];
-
 
 function esc(v){
 
@@ -365,7 +319,6 @@ return {
 
 }
 
-
 async function kayit(){
 
 const email=
@@ -375,10 +328,8 @@ const password=
 document.getElementById("password").value;
 
 const {error}=await db.auth.signUp({
-
 email:email,
 password:password
-
 });
 
 if(error){
@@ -396,7 +347,6 @@ true
 
 }
 
-
 async function giris(){
 
 const email=
@@ -407,10 +357,8 @@ document.getElementById("password").value;
 
 const {data,error}=
 await db.auth.signInWithPassword({
-
 email:email,
 password:password
-
 });
 
 if(error){
@@ -426,7 +374,6 @@ await baslat();
 
 }
 
-
 async function baslat(){
 
 document.getElementById("auth")
@@ -439,7 +386,6 @@ await verileriGetir();
 
 }
 
-
 function mesaj(text,ok){
 
 const el=
@@ -451,7 +397,6 @@ el.className=ok?"ok":"err";
 
 }
 
-
 async function cikis(){
 
 await db.auth.signOut();
@@ -459,7 +404,6 @@ await db.auth.signOut();
 location.reload();
 
 }
-
 
 async function verileriGetir(){
 
@@ -497,17 +441,14 @@ goster();
 
 }
 
-
 async function ekle(tablo,kayit){
 
 const {error}=
 await db
 .from(tablo)
 .insert({
-
 ...kayit,
 user_id:kullanici.id
-
 });
 
 if(error){
@@ -521,7 +462,6 @@ await verileriGetir();
 }
 
 }
-
 
 async function sil(tablo,id){
 
@@ -541,7 +481,6 @@ await verileriGetir();
 
 }
 
-
 function sayfa(id,btn){
 
 document
@@ -559,7 +498,6 @@ document
 btn.classList.add("active");
 
 }
-
 
 function musteriEkle(){
 
@@ -586,7 +524,6 @@ document.getElementById("mNot").value
 });
 
 }
-
 
 function aracEkle(){
 
@@ -621,7 +558,6 @@ document.getElementById("tNot").value
 });
 
 }
-
 
 function servisEkle(){
 
@@ -664,7 +600,6 @@ document.getElementById("sNot").value
 
 }
 
-
 function parcaEkle(){
 
 const no=
@@ -698,7 +633,6 @@ photo_url:""
 
 }
 
-
 function stokEkle(){
 
 const no=
@@ -726,7 +660,6 @@ quantity:adet
 });
 
 }
-
 
 function hafizaBul(){
 
@@ -773,7 +706,6 @@ return {...s,puan};
 .sort((a,b)=>b.puan-a.puan)
 .slice(0,10);
 
-
 document.getElementById("hafizaSonuc")
 .innerHTML=
 sonuc.map(s=>{
@@ -813,7 +745,6 @@ ${esc(s.parts)}
 "<p class='muted'>Benzer kayıt bulunamadı.</p>";
 
 }
-
 
 function bakimEkle(){
 
@@ -862,7 +793,6 @@ tarih.getMonth()+Number(sure)
 
 }
 
-
 ekle("customer_reminders",{
 
 customer_id:musteri.id,
@@ -885,7 +815,6 @@ status:"scheduled"
 
 }
 
-
 function goster(){
 
 document.getElementById("mSay")
@@ -900,7 +829,6 @@ document.getElementById("sSay")
 document.getElementById("pSay")
 .textContent=parcalar.length;
 
-
 document.getElementById("tMusteri")
 .innerHTML=
 '<option value="">Müşteri seç</option>'+
@@ -909,7 +837,6 @@ musteriler.map(x=>
 ${esc(x.name)}
 </option>`
 ).join("");
-
 
 const aracSecenekleri=
 '<option value="">Araç seç</option>'+
@@ -926,13 +853,11 @@ ${esc(x.model)} - ${esc(m?.name||"")}
 
 }).join("");
 
-
 document.getElementById("sArac")
 .innerHTML=aracSecenekleri;
 
 document.getElementById("bArac")
 .innerHTML=aracSecenekleri;
-
 
 document.getElementById("mListe")
 .innerHTML=
@@ -962,7 +887,6 @@ ${esc(x.note)}
 `).join("")
 ||
 "<p class='muted'>Henüz müşteri yok.</p>";
-
 
 document.getElementById("tListe")
 .innerHTML=
@@ -1005,7 +929,6 @@ ${esc(x.current_hours)}
 }).join("")
 ||
 "<p class='muted'>Henüz araç yok.</p>";
-
 
 document.getElementById("sListe")
 .innerHTML=
@@ -1056,7 +979,6 @@ ${esc(s.parts)}
 ||
 "<p class='muted'>Henüz servis kaydı yok.</p>";
 
-
 document.getElementById("pListe")
 .innerHTML=
 parcalar.map(p=>`
@@ -1091,7 +1013,6 @@ ${esc(p.compatible_model)}
 ||
 "<p class='muted'>Henüz parça yok.</p>";
 
-
 let stok={};
 
 stoklar.forEach(x=>{
@@ -1107,7 +1028,6 @@ Number(x.quantity)
 );
 
 });
-
 
 document.getElementById("stokListe")
 .innerHTML=
@@ -1129,7 +1049,6 @@ Object.entries(stok).map(([no,adet])=>`
 ||
 "<p class='muted'>Stok hareketi yok.</p>";
 
-
 document.getElementById("sonServis")
 .innerHTML=
 servisler.slice(0,5).map(s=>`
@@ -1145,7 +1064,6 @@ ${esc(s.work_done)}
 `).join("")
 ||
 "<p class='muted'>Henüz servis yok.</p>";
-
 
 document.getElementById("bListe")
 .innerHTML=
@@ -1185,7 +1103,6 @@ ${esc(x.channel)}
 
 }
 
-
 db.auth.getSession()
 .then(({data})=>{
 
@@ -1201,349 +1118,5 @@ baslat();
 
 </script>
 
-</body>
-</html><!DOCTYPE html>
-<html lang="tr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#111827">
-<title>Usta Garajım</title>
-<style>
-*{box-sizing:border-box}
-body{margin:0;background:#f3f4f6;color:#111827;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-header{background:#111827;color:white;padding:20px}
-header h1{margin:0;font-size:24px}
-nav{display:flex;overflow:auto;gap:7px;background:white;padding:10px;position:sticky;top:0;z-index:5}
-nav button{border:0;border-radius:10px;padding:10px 14px;white-space:nowrap;font-weight:bold}
-nav button.active{background:#111827;color:white}
-main{max-width:900px;margin:auto;padding:15px}
-.page{display:none}.page.active{display:block}
-.card{background:white;border:1px solid #ddd;border-radius:15px;padding:15px;margin:10px 0}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.stat{font-size:28px;font-weight:bold}
-input,select,textarea{width:100%;padding:12px;margin:5px 0 10px;border:1px solid #ccc;border-radius:10px;font-size:16px}
-textarea{min-height:80px}
-.btn{background:#111827;color:white;border:0;border-radius:10px;padding:12px 16px;font-weight:bold}
-.del{background:#fee2e2;color:#991b1b;border:0;border-radius:8px;padding:7px}
-.muted{color:#6b7280;font-size:14px}
-.row{display:flex;justify-content:space-between;gap:10px;align-items:center}
-img{max-width:100%;max-height:220px;object-fit:contain}
-</style>
-</head>
-
-<body>
-
-<header>
-<h1>🔧 Usta Garajım</h1>
-<small>Servis • Traktör • Parça • Stok</small>
-</header>
-
-<nav>
-<button class="active" onclick="sayfa('ana',this)">Ana Sayfa</button>
-<button onclick="sayfa('musteri',this)">Müşteriler</button>
-<button onclick="sayfa('traktor',this)">Traktörler</button>
-<button onclick="sayfa('servis',this)">Servis</button>
-<button onclick="sayfa('parca',this)">Parçalar</button>
-<button onclick="sayfa('stok',this)">Stok</button>
-</nav>
-
-<main>
-
-<section id="ana" class="page active">
-<h2>Ana Sayfa</h2>
-
-<div class="grid">
-<div class="card">Müşteri<div class="stat" id="mSay">0</div></div>
-<div class="card">Traktör<div class="stat" id="tSay">0</div></div>
-<div class="card">Servis<div class="stat" id="sSay">0</div></div>
-<div class="card">Parça<div class="stat" id="pSay">0</div></div>
-</div>
-
-<div class="card">
-<h3>Son Servisler</h3>
-<div id="son"></div>
-</div>
-</section>
-
-<section id="musteri" class="page">
-<h2>Müşteriler</h2>
-
-<div class="card">
-<input id="mn" placeholder="Müşteri / Firma adı">
-<input id="mt" placeholder="Telefon">
-<textarea id="mnot" placeholder="Not"></textarea>
-<button class="btn" onclick="musteriEkle()">Müşteri Kaydet</button>
-</div>
-
-<div id="mListe"></div>
-</section>
-
-<section id="traktor" class="page">
-<h2>Traktörler</h2>
-
-<div class="card">
-<select id="tm"></select>
-<input id="tmodel" placeholder="Marka / Model">
-<input id="tseri" placeholder="Şase / Plaka / Seri No">
-<input id="tsaat" placeholder="Çalışma saati">
-<textarea id="tnot" placeholder="Traktör notu"></textarea>
-<button class="btn" onclick="traktorEkle()">Traktör Kaydet</button>
-</div>
-
-<div id="tListe"></div>
-</section>
-
-<section id="servis" class="page">
-<h2>Servis Kaydı</h2>
-
-<div class="card">
-<select id="st"></select>
-<input id="starih" type="date">
-<input id="sAriza" placeholder="Arıza / Şikayet">
-<textarea id="sYapilan" placeholder="Yapılan işlem"></textarea>
-<textarea id="sParca" placeholder="Kullanılan parçalar / OEM numaraları"></textarea>
-<input id="sSaat" placeholder="Çalışma saati / Km">
-<textarea id="sNot" placeholder="Ek not"></textarea>
-<button class="btn" onclick="servisEkle()">Servis Kaydet</button>
-</div>
-
-<div id="sListe"></div>
-</section>
-
-<section id="parca" class="page">
-<h2>Parça Kataloğu</h2>
-
-<div class="card">
-<input id="pno" placeholder="OEM / Parça Numarası">
-<input id="padi" placeholder="Parça Adı">
-<input id="pmarka" placeholder="Marka">
-<input id="pmodel" placeholder="Uyumlu Model">
-<input id="pfoto" type="file" accept="image/*">
-<button class="btn" onclick="parcaEkle()">Parça Kaydet</button>
-</div>
-
-<div id="pListe"></div>
-</section>
-
-<section id="stok" class="page">
-<h2>Stok</h2>
-
-<div class="card">
-<input id="stokno" placeholder="Parça numarası">
-<select id="stoktip">
-<option value="giris">Stok Girişi</option>
-<option value="cikis">Stok Çıkışı</option>
-</select>
-<input id="stokadet" type="number" placeholder="Adet">
-<button class="btn" onclick="stokEkle()">Kaydet</button>
-</div>
-
-<div id="stokListe"></div>
-</section>
-
-</main>
-
-<script>
-
-let db=JSON.parse(localStorage.getItem("ustaGarajim")||"null")||{
-musteriler:[],
-traktorler:[],
-servisler:[],
-parcalar:[],
-stok:[]
-};
-
-function kaydet(){
-localStorage.setItem("ustaGarajim",JSON.stringify(db));
-goster();
-}
-
-function sayfa(id,buton){
-document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
-document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));
-document.getElementById(id).classList.add("active");
-buton.classList.add("active");
-goster();
-}
-
-function temiz(id){
-document.getElementById(id).value="";
-}
-
-function musteriEkle(){
-let ad=mn.value.trim();
-if(!ad)return alert("Müşteri adı yaz.");
-db.musteriler.push({
-id:Date.now(),
-ad,
-tel:mt.value,
-not:mnot.value
-});
-temiz("mn");temiz("mt");temiz("mnot");
-kaydet();
-}
-
-function traktorEkle(){
-if(!tm.value||!tmodel.value)return alert("Müşteri ve model gerekli.");
-
-db.traktorler.push({
-id:Date.now(),
-musteri:tm.value,
-model:tmodel.value,
-seri:tseri.value,
-saat:tsaat.value,
-not:tnot.value
-});
-
-["tmodel","tseri","tsaat","tnot"].forEach(temiz);
-kaydet();
-}
-
-function servisEkle(){
-if(!st.value||!sYapilan.value)return alert("Traktör ve yapılan işlem gerekli.");
-
-db.servisler.push({
-id:Date.now(),
-traktor:st.value,
-tarih:starih.value||new Date().toISOString().slice(0,10),
-ariza:sAriza.value,
-yapilan:sYapilan.value,
-parca:sParca.value,
-saat:sSaat.value,
-not:sNot.value
-});
-
-["sAriza","sYapilan","sParca","sSaat","sNot"].forEach(temiz);
-kaydet();
-}
-
-function parcaEkle(){
-if(!pno.value||!padi.value)return alert("Parça numarası ve adı gerekli.");
-
-let f=pfoto.files[0];
-
-function ekle(resim){
-db.parcalar.push({
-id:Date.now(),
-no:pno.value,
-adi:padi.value,
-marka:pmarka.value,
-model:pmodel.value,
-foto:resim||""
-});
-
-["pno","padi","pmarka","pmodel"].forEach(temiz);
-pfoto.value="";
-kaydet();
-}
-
-if(f){
-let r=new FileReader();
-r.onload=()=>ekle(r.result);
-r.readAsDataURL(f);
-}else ekle("");
-}
-
-function stokEkle(){
-if(!stokno.value||!stokadet.value)return alert("Parça ve adet gerekli.");
-
-db.stok.push({
-id:Date.now(),
-no:stokno.value,
-tip:stoktip.value,
-adet:Number(stokadet.value)
-});
-
-temiz("stokno");temiz("stokadet");
-kaydet();
-}
-
-function sil(tablo,id){
-if(confirm("Bu kayıt silinsin mi?")){
-db[tablo]=db[tablo].filter(x=>x.id!=id);
-kaydet();
-}
-}
-
-function goster(){
-
-mSay.textContent=db.musteriler.length;
-tSay.textContent=db.traktorler.length;
-sSay.textContent=db.servisler.length;
-pSay.textContent=db.parcalar.length;
-
-tm.innerHTML='<option value="">Müşteri seç</option>'+
-db.musteriler.map(x=>`<option value="${x.ad}">${x.ad}</option>`).join("");
-
-st.innerHTML='<option value="">Traktör seç</option>'+
-db.traktorler.map(x=>`<option value="${x.id}">${x.model} - ${x.musteri}</option>`).join("");
-
-mListe.innerHTML=db.musteriler.map(x=>`
-<div class="card">
-<div class="row"><b>${x.ad}</b>
-<button class="del" onclick="sil('musteriler',${x.id})">Sil</button></div>
-<div>${x.tel}</div>
-<div class="muted">${x.not}</div>
-</div>`).join("")||"<p class='muted'>Henüz müşteri yok.</p>";
-
-tListe.innerHTML=db.traktorler.map(x=>`
-<div class="card">
-<div class="row"><b>${x.model}</b>
-<button class="del" onclick="sil('traktorler',${x.id})">Sil</button></div>
-<div>${x.musteri}</div>
-<div class="muted">${x.seri} • ${x.saat}</div>
-<p>${x.not}</p>
-<h4>Servis Geçmişi</h4>
-${db.servisler.filter(s=>s.traktor==x.id).map(s=>`
-<div class="card">
-<b>${s.tarih}</b><br>
-Arıza: ${s.ariza}<br>
-Yapılan: ${s.yapilan}<br>
-Parçalar: ${s.parca}
-</div>`).join("")||"<span class='muted'>Servis kaydı yok.</span>"}
-</div>`).join("")||"<p class='muted'>Henüz traktör yok.</p>";
-
-sListe.innerHTML=db.servisler.slice().reverse().map(s=>{
-let t=db.traktorler.find(x=>x.id==s.traktor);
-return `
-<div class="card">
-<div class="row"><b>${t?t.model:"Silinmiş traktör"}</b>
-<button class="del" onclick="sil('servisler',${s.id})">Sil</button></div>
-<div class="muted">${s.tarih} • ${t?t.musteri:""}</div>
-<p><b>Arıza:</b> ${s.ariza}</p>
-<p><b>Yapılan:</b> ${s.yapilan}</p>
-<p><b>Parçalar:</b> ${s.parca}</p>
-<p>${s.saat} ${s.not}</p>
-</div>`;
-}).join("")||"<p class='muted'>Henüz servis kaydı yok.</p>";
-
-pListe.innerHTML=db.parcalar.map(p=>`
-<div class="card">
-${p.foto?`<img src="${p.foto}">`:""}
-<div class="row"><b>${p.adi}</b>
-<button class="del" onclick="sil('parcalar',${p.id})">Sil</button></div>
-<p><b>OEM:</b> ${p.no}</p>
-<p>${p.marka} • ${p.model}</p>
-</div>`).join("")||"<p class='muted'>Henüz parça yok.</p>";
-
-let stok={};
-db.stok.forEach(x=>{
-stok[x.no]=(stok[x.no]||0)+(x.tip=="giris"?x.adet:-x.adet);
-});
-
-stokListe.innerHTML=Object.entries(stok).map(([no,adet])=>`
-<div class="card">
-<div class="row"><b>${no}</b><b>${adet} adet</b></div>
-</div>`).join("")||"<p class='muted'>Stok hareketi yok.</p>";
-
-son.innerHTML=db.servisler.slice(-5).reverse().map(s=>
-`<div class="card">${s.tarih} — ${s.yapilan}</div>`
-).join("")||"<p class='muted'>Henüz servis yok.</p>";
-}
-
-goster();
-
-</script>
 </body>
 </html>
