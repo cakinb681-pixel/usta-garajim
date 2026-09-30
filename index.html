@@ -1,1 +1,1294 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#111827">
+<title>Usta Garajım</title>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f3f4f6;color:#111827;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+header{background:#111827;color:white;padding:20px}
+header h1{margin:0}
+nav{display:flex;overflow:auto;gap:7px;background:white;padding:10px;position:sticky;top:0;z-index:5}
+nav button{border:0;border-radius:10px;padding:10px 14px;white-space:nowrap;font-weight:bold}
+nav button.active{background:#111827;color:white}
+main{max-width:900px;margin:auto;padding:15px}
+.page{display:none}.page.active{display:block}
+.card{background:white;border:1px solid #ddd;border-radius:15px;padding:15px;margin:10px 0}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{font-size:28px;font-weight:bold}
+input,select,textarea{width:100%;padding:12px;margin:5px 0 10px;border:1px solid #ccc;border-radius:10px;font-size:16px}
+textarea{min-height:80px}
+.btn{background:#111827;color:white;border:0;border-radius:10px;padding:12px 16px;font-weight:bold}
+.del{background:#fee2e2;color:#991b1b;border:0;border-radius:8px;padding:7px}
+.muted{color:#6b7280;font-size:14px}
+.row{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.hidden{display:none}
+.ok{background:#dcfce7;color:#166534;padding:10px;border-radius:10px}
+.err{background:#fee2e2;color:#991b1b;padding:10px;border-radius:10px}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>🔧 Usta Garajım</h1>
+<small>Bulut servis yönetimi • Ustanın Dijital Hafızası</small>
+</header>
+
+<div id="auth" class="card" style="max-width:500px;margin:20px auto">
+
+<h2>🔐 Usta Girişi</h2>
+
+<input id="email" type="email" placeholder="E-posta">
+<input id="password" type="password" placeholder="Şifre">
+
+<button class="btn" onclick="giris()">Giriş Yap</button>
+<button class="btn" onclick="kayit()">Yeni Hesap Oluştur</button>
+
+<p id="authMesaj"></p>
+
+</div>
+
+<div id="app" class="hidden">
+
+<nav>
+
+<button class="active" onclick="sayfa('ana',this)">Ana Sayfa</button>
+<button onclick="sayfa('musteri',this)">Müşteriler</button>
+<button onclick="sayfa('traktor',this)">Araçlar</button>
+<button onclick="sayfa('servis',this)">Servis</button>
+<button onclick="sayfa('hafiza',this)">🧠 Hafıza</button>
+<button onclick="sayfa('parca',this)">Parçalar</button>
+<button onclick="sayfa('stok',this)">Stok</button>
+<button onclick="sayfa('bakim',this)">🔔 Bakım</button>
+<button onclick="sayfa('randevu',this)">📅 Randevular</button>
+<button onclick="cikis()">Çıkış</button>
+
+</nav>
+
+<main>
+
+<section id="ana" class="page active">
+
+<h2>Ana Sayfa</h2>
+
+<div class="grid">
+
+<div class="card">
+Müşteri
+<div class="stat" id="mSay">0</div>
+</div>
+
+<div class="card">
+Araç
+<div class="stat" id="tSay">0</div>
+</div>
+
+<div class="card">
+Servis
+<div class="stat" id="sSay">0</div>
+</div>
+
+<div class="card">
+Parça
+<div class="stat" id="pSay">0</div>
+</div>
+
+</div>
+
+<div class="card">
+<h3>Son Servisler</h3>
+<div id="sonServis"></div>
+</div>
+
+</section>
+
+<section id="musteri" class="page">
+
+<h2>👥 Müşteriler</h2>
+
+<div class="card">
+
+<input id="mAd" placeholder="Müşteri / Firma adı">
+<input id="mTel" placeholder="Telefon">
+<textarea id="mNot" placeholder="Not"></textarea>
+
+<button class="btn" onclick="musteriEkle()">Müşteri Kaydet</button>
+
+</div>
+
+<div id="mListe"></div>
+
+</section>
+
+<section id="traktor" class="page">
+
+<h2>🚜 Araçlar</h2>
+
+<div class="card">
+
+<select id="tMusteri"></select>
+
+<input id="tModel" placeholder="Marka / Model">
+<input id="tSeri" placeholder="Şase / Plaka / Seri No">
+<input id="tSaat" type="number" placeholder="Km / Çalışma saati">
+
+<textarea id="tNot" placeholder="Araç notu"></textarea>
+
+<button class="btn" onclick="aracEkle()">Araç Kaydet</button>
+
+</div>
+
+<div id="tListe"></div>
+
+</section>
+
+<section id="servis" class="page">
+
+<h2>🔧 Servis Kaydı</h2>
+
+<div class="card">
+
+<select id="sArac"></select>
+
+<input id="sTarih" type="date">
+
+<input id="sAriza" placeholder="Arıza / Şikayet">
+
+<textarea id="sYapilan" placeholder="Yapılan işlem"></textarea>
+
+<textarea id="sParca" placeholder="Kullanılan parçalar / OEM numaraları"></textarea>
+
+<input id="sSaat" type="number" placeholder="Km / Çalışma saati">
+
+<textarea id="sNot" placeholder="Ek not"></textarea>
+
+<button class="btn" onclick="servisEkle()">Servis Kaydet</button>
+
+</div>
+
+<div id="sListe"></div>
+
+</section>
+
+<section id="hafiza" class="page">
+
+<h2>🧠 Ustanın Dijital Hafızası</h2>
+
+<div class="card">
+
+<p class="muted">
+Daha önce yaptığın servis kayıtlarında benzer arızaları ara.
+</p>
+
+<input id="hafizaAra"
+placeholder="Örn: hidrolik kaldırmıyor">
+
+<button class="btn" onclick="hafizaBul()">
+Benzer Arızaları Bul
+</button>
+
+</div>
+
+<div id="hafizaSonuc"></div>
+
+</section>
+
+<section id="parca" class="page">
+
+<h2>🔩 Parça Kataloğu</h2>
+
+<div class="card">
+
+<input id="pNo" placeholder="OEM / Parça numarası">
+<input id="pAd" placeholder="Parça adı">
+<input id="pMarka" placeholder="Marka">
+<input id="pModel" placeholder="Uyumlu model">
+
+<button class="btn" onclick="parcaEkle()">Parça Kaydet</button>
+
+</div>
+
+<div id="pListe"></div>
+
+</section>
+
+<section id="stok" class="page">
+
+<h2>📦 Stok</h2>
+
+<div class="card">
+
+<input id="stokNo" placeholder="Parça numarası">
+
+<select id="stokTip">
+<option value="in">Stok Girişi</option>
+<option value="out">Stok Çıkışı</option>
+</select>
+
+<input id="stokAdet" type="number" placeholder="Adet">
+
+<button class="btn" onclick="stokEkle()">Kaydet</button>
+
+</div>
+
+<div id="stokListe"></div>
+
+</section>
+
+
+<section id="randevu" class="page">
+
+<h2>📅 Randevu Yönetimi</h2>
+
+<div class="card">
+
+<h3>Yeni Randevu</h3>
+
+<select id="rMusteri"></select>
+
+<select id="rArac"></select>
+
+<select id="rIslem">
+<option value="Genel bakım">Genel bakım</option>
+<option value="Yağ değişimi">Yağ değişimi</option>
+<option value="Arıza tespiti">Arıza tespiti</option>
+<option value="Fren">Fren</option>
+<option value="Elektrik">Elektrik</option>
+<option value="Motor">Motor</option>
+<option value="Diğer">Diğer</option>
+</select>
+
+<input id="rTarih" type="date">
+
+<select id="rSaat">
+<option value="">Saat seç</option>
+<option value="08:00">08:00</option>
+<option value="09:00">09:00</option>
+<option value="10:00">10:00</option>
+<option value="11:00">11:00</option>
+<option value="12:00">12:00</option>
+<option value="13:00">13:00</option>
+<option value="14:00">14:00</option>
+<option value="15:00">15:00</option>
+<option value="16:00">16:00</option>
+<option value="17:00">17:00</option>
+<option value="18:00">18:00</option>
+</select>
+
+<textarea id="rNot" placeholder="Randevu notu"></textarea>
+
+<button class="btn" onclick="randevuEkle()">Randevu Oluştur</button>
+
+<p class="muted">Aynı gün ve saatte ikinci aktif randevu kaydedilemez.</p>
+
+</div>
+
+<div class="card">
+<h3>Yaklaşan Randevular</h3>
+<div id="rListe"></div>
+</div>
+
+</section>
+
+<section id="bakim" class="page">
+
+<h2>🔔 Müşteri Bakım Hatırlatması</h2>
+
+<div class="card">
+
+<select id="bArac"></select>
+
+<select id="bSure">
+<option value="1">1 ay</option>
+<option value="3">3 ay</option>
+<option value="6">6 ay</option>
+<option value="12">1 yıl</option>
+<option value="custom">Özel tarih</option>
+</select>
+
+<input id="bTarih" type="date">
+
+<select id="bKanal">
+<option value="email">E-posta</option>
+<option value="whatsapp">WhatsApp</option>
+<option value="sms">SMS</option>
+</select>
+
+<input id="bMesaj" placeholder="Mesaj">
+
+<button class="btn" onclick="bakimEkle()">
+Bakım Hatırlatması Planla
+</button>
+
+</div>
+
+<div id="bListe"></div>
+
+</section>
+
+</main>
+</div>
+
+<script>
+
+const SUPABASE_URL =
+"https://texgqhqzpgbvskpofrif.supabase.co";
+
+const SUPABASE_KEY =
+"sb_publishable_M8YC3MryfDe4StgUoURH9Q_eiKzIghW";
+
+const db =
+supabase.createClient(
+SUPABASE_URL,
+SUPABASE_KEY
+);
+
+let kullanici=null;
+
+let musteriler=[];
+let araclar=[];
+let servisler=[];
+let parcalar=[];
+let stoklar=[];
+let bakimlar=[];
+let randevular=[];
+
+function esc(v){
+
+return String(v??"")
+.replace(/[&<>"']/g,function(c){
+
+return {
+"&":"&amp;",
+"<":"&lt;",
+">":"&gt;",
+'"':"&quot;",
+"'":"&#39;"
+}[c];
+
+});
+
+}
+
+async function kayit(){
+
+const email=
+document.getElementById("email").value.trim();
+
+const password=
+document.getElementById("password").value;
+
+const {error}=await db.auth.signUp({
+email:email,
+password:password
+});
+
+if(error){
+
+mesaj(error.message,false);
+
+}else{
+
+mesaj(
+"Hesap oluşturuldu. E-posta doğrulaması gerekiyorsa e-postanı kontrol et.",
+true
+);
+
+}
+
+}
+
+async function giris(){
+
+const email=
+document.getElementById("email").value.trim();
+
+const password=
+document.getElementById("password").value;
+
+const {data,error}=
+await db.auth.signInWithPassword({
+email:email,
+password:password
+});
+
+if(error){
+
+mesaj(error.message,false);
+return;
+
+}
+
+kullanici=data.user;
+
+await baslat();
+
+}
+
+async function baslat(){
+
+document.getElementById("auth")
+.classList.add("hidden");
+
+document.getElementById("app")
+.classList.remove("hidden");
+
+await verileriGetir();
+
+}
+
+function mesaj(text,ok){
+
+const el=
+document.getElementById("authMesaj");
+
+el.textContent=text;
+
+el.className=ok?"ok":"err";
+
+}
+
+async function cikis(){
+
+await db.auth.signOut();
+
+location.reload();
+
+}
+
+async function verileriGetir(){
+
+musteriler=
+(await db.from("customers")
+.select("*")
+.order("created_at",{ascending:false})).data||[];
+
+araclar=
+(await db.from("tractors")
+.select("*")
+.order("created_at",{ascending:false})).data||[];
+
+servisler=
+(await db.from("service_records")
+.select("*")
+.order("created_at",{ascending:false})).data||[];
+
+parcalar=
+(await db.from("parts")
+.select("*")
+.order("created_at",{ascending:false})).data||[];
+
+stoklar=
+(await db.from("stock_movements")
+.select("*")
+.order("created_at",{ascending:false})).data||[];
+
+bakimlar=
+(await db.from("customer_reminders")
+.select("*")
+.order("created_at",{ascending:false})).data||[];
+
+randevular=
+(await db.from("appointments")
+.select("*")
+.order("appointment_date",{ascending:true})
+.order("appointment_time",{ascending:true})).data||[];
+
+goster();
+
+}
+
+async function ekle(tablo,kayit){
+
+const {error}=
+await db
+.from(tablo)
+.insert({
+...kayit,
+user_id:kullanici.id
+});
+
+if(error){
+
+alert(error.message);
+
+}else{
+
+await verileriGetir();
+
+}
+
+}
+
+async function sil(tablo,id){
+
+if(!confirm("Bu kayıt silinsin mi?"))
+return;
+
+const {error}=
+await db
+.from(tablo)
+.delete()
+.eq("id",id);
+
+if(error)
+alert(error.message);
+else
+await verileriGetir();
+
+}
+
+function sayfa(id,btn){
+
+document
+.querySelectorAll(".page")
+.forEach(x=>x.classList.remove("active"));
+
+document
+.querySelectorAll("nav button")
+.forEach(x=>x.classList.remove("active"));
+
+document
+.getElementById(id)
+.classList.add("active");
+
+btn.classList.add("active");
+
+}
+
+function musteriEkle(){
+
+const ad=
+document.getElementById("mAd").value.trim();
+
+if(!ad){
+
+alert("Müşteri adı gerekli.");
+return;
+
+}
+
+ekle("customers",{
+
+name:ad,
+
+phone:
+document.getElementById("mTel").value,
+
+note:
+document.getElementById("mNot").value
+
+});
+
+}
+
+function aracEkle(){
+
+const musteri=
+document.getElementById("tMusteri").value;
+
+const model=
+document.getElementById("tModel").value.trim();
+
+if(!musteri||!model){
+
+alert("Müşteri ve model gerekli.");
+return;
+
+}
+
+ekle("tractors",{
+
+customer_id:musteri,
+
+model:model,
+
+serial_no:
+document.getElementById("tSeri").value,
+
+current_hours:
+Number(document.getElementById("tSaat").value)||0,
+
+note:
+document.getElementById("tNot").value
+
+});
+
+}
+
+function servisEkle(){
+
+const arac=
+document.getElementById("sArac").value;
+
+const yapilan=
+document.getElementById("sYapilan").value.trim();
+
+if(!arac||!yapilan){
+
+alert("Araç ve yapılan işlem gerekli.");
+return;
+
+}
+
+ekle("service_records",{
+
+tractor_id:arac,
+
+service_date:
+document.getElementById("sTarih").value||
+new Date().toISOString().slice(0,10),
+
+complaint:
+document.getElementById("sAriza").value,
+
+work_done:yapilan,
+
+parts:
+document.getElementById("sParca").value,
+
+hours:
+Number(document.getElementById("sSaat").value)||0,
+
+note:
+document.getElementById("sNot").value
+
+});
+
+}
+
+function parcaEkle(){
+
+const no=
+document.getElementById("pNo").value.trim();
+
+const ad=
+document.getElementById("pAd").value.trim();
+
+if(!no||!ad){
+
+alert("OEM ve parça adı gerekli.");
+return;
+
+}
+
+ekle("parts",{
+
+oem_no:no,
+
+name:ad,
+
+brand:
+document.getElementById("pMarka").value,
+
+compatible_model:
+document.getElementById("pModel").value,
+
+photo_url:""
+
+});
+
+}
+
+function stokEkle(){
+
+const no=
+document.getElementById("stokNo").value.trim();
+
+const adet=
+Number(document.getElementById("stokAdet").value);
+
+if(!no||!adet){
+
+alert("Parça ve adet gerekli.");
+return;
+
+}
+
+ekle("stock_movements",{
+
+part_no:no,
+
+movement_type:
+document.getElementById("stokTip").value,
+
+quantity:adet
+
+});
+
+}
+
+function hafizaBul(){
+
+const aranan=
+document
+.getElementById("hafizaAra")
+.value
+.toLowerCase()
+.trim();
+
+if(!aranan)
+return;
+
+const kelimeler=
+aranan
+.split(/\s+/)
+.filter(x=>x.length>2);
+
+const sonuc=
+servisler
+.map(s=>{
+
+const metin=
+(
+(s.complaint||"")+" "+
+(s.work_done||"")+" "+
+(s.parts||"")+" "+
+(s.note||"")
+).toLowerCase();
+
+let puan=0;
+
+kelimeler.forEach(k=>{
+
+if(metin.includes(k))
+puan++;
+
+});
+
+return {...s,puan};
+
+})
+.filter(x=>x.puan>0)
+.sort((a,b)=>b.puan-a.puan)
+.slice(0,10);
+
+document.getElementById("hafizaSonuc")
+.innerHTML=
+sonuc.map(s=>{
+
+const arac=
+araclar.find(x=>x.id===s.tractor_id);
+
+return `
+<div class="card">
+
+<b>${esc(arac?.model||"Araç")}</b>
+
+<div class="muted">
+${esc(s.service_date)}
+</div>
+
+<p>
+<b>Arıza:</b>
+${esc(s.complaint)}
+</p>
+
+<p>
+<b>Yapılan:</b>
+${esc(s.work_done)}
+</p>
+
+<p>
+<b>Parçalar:</b>
+${esc(s.parts)}
+</p>
+
+</div>
+`;
+
+}).join("")
+||
+"<p class='muted'>Benzer kayıt bulunamadı.</p>";
+
+}
+
+function bakimEkle(){
+
+const aracId=
+document.getElementById("bArac").value;
+
+const arac=
+araclar.find(x=>x.id===aracId);
+
+if(!arac){
+
+alert("Araç seç.");
+return;
+
+}
+
+const musteri=
+musteriler.find(x=>x.id===arac.customer_id);
+
+if(!musteri){
+
+alert("Müşteri bulunamadı.");
+return;
+
+}
+
+let tarih=
+new Date();
+
+const sure=
+document.getElementById("bSure").value;
+
+if(sure==="custom"){
+
+tarih=
+new Date(
+document.getElementById("bTarih").value+
+"T09:00:00"
+);
+
+}else{
+
+tarih.setMonth(
+tarih.getMonth()+Number(sure)
+);
+
+}
+
+ekle("customer_reminders",{
+
+customer_id:musteri.id,
+
+tractor_id:arac.id,
+
+scheduled_for:
+tarih.toISOString(),
+
+channel:
+document.getElementById("bKanal").value,
+
+message_template:
+document.getElementById("bMesaj").value||
+"Aracınızın bakım zamanı geldi.",
+
+status:"scheduled"
+
+});
+
+}
+
+
+function bugununTarihi(){
+const d=new Date();
+const yil=d.getFullYear();
+const ay=String(d.getMonth()+1).padStart(2,"0");
+const gun=String(d.getDate()).padStart(2,"0");
+return `${yil}-${ay}-${gun}`;
+}
+
+async function randevuEkle(){
+
+const musteriId=document.getElementById("rMusteri").value;
+const aracId=document.getElementById("rArac").value;
+const tarih=document.getElementById("rTarih").value;
+const saat=document.getElementById("rSaat").value;
+
+if(!musteriId||!tarih||!saat){
+alert("Müşteri, tarih ve saat gerekli.");
+return;
+}
+
+if(tarih<bugununTarihi()){
+alert("Geçmiş bir tarihe randevu verilemez.");
+return;
+}
+
+const {error}=await db.from("appointments").insert({
+user_id:kullanici.id,
+customer_id:musteriId,
+tractor_id:aracId||null,
+appointment_date:tarih,
+appointment_time:saat,
+service_type:document.getElementById("rIslem").value,
+note:document.getElementById("rNot").value,
+status:"pending"
+});
+
+if(error){
+alert(error.code==="23505" ? "Bu tarih ve saatte zaten aktif bir randevu var." : error.message);
+return;
+}
+
+document.getElementById("rNot").value="";
+document.getElementById("rTarih").value="";
+document.getElementById("rSaat").value="";
+await verileriGetir();
+alert("Randevu oluşturuldu. Durumu: Bekliyor.");
+}
+
+async function randevuDurum(id,status){
+
+const {error}=await db.from("appointments")
+.update({status})
+.eq("id",id);
+
+if(error){
+alert(error.message);
+return;
+}
+
+await verileriGetir();
+}
+
+function goster(){
+
+document.getElementById("mSay")
+.textContent=musteriler.length;
+
+document.getElementById("tSay")
+.textContent=araclar.length;
+
+document.getElementById("sSay")
+.textContent=servisler.length;
+
+document.getElementById("pSay")
+.textContent=parcalar.length;
+
+document.getElementById("tMusteri")
+.innerHTML=
+'<option value="">Müşteri seç</option>'+
+musteriler.map(x=>
+`<option value="${x.id}">
+${esc(x.name)}
+</option>`
+).join("");
+
+const aracSecenekleri=
+'<option value="">Araç seç</option>'+
+araclar.map(x=>{
+
+const m=
+musteriler.find(c=>c.id===x.customer_id);
+
+return `
+<option value="${x.id}">
+${esc(x.model)} - ${esc(m?.name||"")}
+</option>
+`;
+
+}).join("");
+
+document.getElementById("sArac")
+.innerHTML=aracSecenekleri;
+
+document.getElementById("bArac")
+.innerHTML=aracSecenekleri;
+
+
+document.getElementById("rTarih").min=bugununTarihi();
+
+document.getElementById("rMusteri")
+.innerHTML=
+'<option value="">Müşteri seç</option>'+
+musteriler.map(x=>
+`<option value="${x.id}">${esc(x.name)} - ${esc(x.phone||"")}</option>`
+).join("");
+
+document.getElementById("rArac")
+.innerHTML=
+'<option value="">Araç seç (isteğe bağlı)</option>'+
+araclar.map(x=>{
+const m=musteriler.find(c=>c.id===x.customer_id);
+return `<option value="${x.id}">${esc(x.model)} - ${esc(m?.name||"")}</option>`;
+}).join("");
+
+const bugun=bugununTarihi();
+const gelecek=randevular.filter(x=>
+x.status!=="cancelled" && x.appointment_date>=bugun
+);
+
+document.getElementById("rListe").innerHTML=
+gelecek.map(x=>{
+const m=musteriler.find(c=>c.id===x.customer_id);
+const a=araclar.find(t=>t.id===x.tractor_id);
+
+return `
+<div class="card">
+<div class="row">
+<b>${esc(x.appointment_date)} • ${esc(String(x.appointment_time).slice(0,5))}</b>
+<select onchange="randevuDurum('${x.id}',this.value)" style="width:auto;margin:0">
+<option value="pending" ${x.status==="pending"?"selected":""}>Bekliyor</option>
+<option value="confirmed" ${x.status==="confirmed"?"selected":""}>Onaylandı</option>
+<option value="completed" ${x.status==="completed"?"selected":""}>Tamamlandı</option>
+<option value="cancelled" ${x.status==="cancelled"?"selected":""}>İptal</option>
+</select>
+</div>
+<div><b>${esc(m?.name||"Müşteri")}</b> • ${esc(m?.phone||"")}</div>
+<div class="muted">${esc(a?.model||"Araç belirtilmedi")} • ${esc(x.service_type)}</div>
+<p>${esc(x.note||"")}</p>
+</div>
+`;
+}).join("") || "<p class='muted'>Yaklaşan randevu yok.</p>";
+
+document.getElementById("mListe")
+.innerHTML=
+musteriler.map(x=>`
+
+<div class="card">
+
+<div class="row">
+
+<b>${esc(x.name)}</b>
+
+<button class="del"
+onclick="sil('customers','${x.id}')">
+Sil
+</button>
+
+</div>
+
+<div>${esc(x.phone)}</div>
+
+<div class="muted">
+${esc(x.note)}
+</div>
+
+</div>
+
+`).join("")
+||
+"<p class='muted'>Henüz müşteri yok.</p>";
+
+document.getElementById("tListe")
+.innerHTML=
+araclar.map(x=>{
+
+const m=
+musteriler.find(c=>c.id===x.customer_id);
+
+return `
+
+<div class="card">
+
+<div class="row">
+
+<b>${esc(x.model)}</b>
+
+<button class="del"
+onclick="sil('tractors','${x.id}')">
+Sil
+</button>
+
+</div>
+
+<div>
+${esc(m?.name||"")}
+</div>
+
+<div class="muted">
+${esc(x.serial_no)}
+•
+${esc(x.current_hours)}
+</div>
+
+<p>${esc(x.note)}</p>
+
+</div>
+
+`;
+
+}).join("")
+||
+"<p class='muted'>Henüz araç yok.</p>";
+
+document.getElementById("sListe")
+.innerHTML=
+servisler.map(s=>{
+
+const arac=
+araclar.find(x=>x.id===s.tractor_id);
+
+return `
+
+<div class="card">
+
+<div class="row">
+
+<b>${esc(arac?.model||"Araç")}</b>
+
+<button class="del"
+onclick="sil('service_records','${s.id}')">
+Sil
+</button>
+
+</div>
+
+<div class="muted">
+${esc(s.service_date)}
+</div>
+
+<p>
+<b>Arıza:</b>
+${esc(s.complaint)}
+</p>
+
+<p>
+<b>Yapılan:</b>
+${esc(s.work_done)}
+</p>
+
+<p>
+<b>Parçalar:</b>
+${esc(s.parts)}
+</p>
+
+</div>
+
+`;
+
+}).join("")
+||
+"<p class='muted'>Henüz servis kaydı yok.</p>";
+
+document.getElementById("pListe")
+.innerHTML=
+parcalar.map(p=>`
+
+<div class="card">
+
+<div class="row">
+
+<b>${esc(p.name)}</b>
+
+<button class="del"
+onclick="sil('parts','${p.id}')">
+Sil
+</button>
+
+</div>
+
+<p>
+<b>OEM:</b>
+${esc(p.oem_no)}
+</p>
+
+<p>
+${esc(p.brand)}
+•
+${esc(p.compatible_model)}
+</p>
+
+</div>
+
+`).join("")
+||
+"<p class='muted'>Henüz parça yok.</p>";
+
+let stok={};
+
+stoklar.forEach(x=>{
+
+stok[x.part_no]=
+(stok[x.part_no]||0)+
+(
+x.movement_type==="in"
+?
+Number(x.quantity)
+:
+-Number(x.quantity)
+);
+
+});
+
+document.getElementById("stokListe")
+.innerHTML=
+Object.entries(stok).map(([no,adet])=>`
+
+<div class="card">
+
+<div class="row">
+
+<b>${esc(no)}</b>
+
+<b>${adet} adet</b>
+
+</div>
+
+</div>
+
+`).join("")
+||
+"<p class='muted'>Stok hareketi yok.</p>";
+
+document.getElementById("sonServis")
+.innerHTML=
+servisler.slice(0,5).map(s=>`
+
+<div class="card">
+
+${esc(s.service_date)}
+—
+${esc(s.work_done)}
+
+</div>
+
+`).join("")
+||
+"<p class='muted'>Henüz servis yok.</p>";
+
+document.getElementById("bListe")
+.innerHTML=
+bakimlar.map(x=>{
+
+const m=
+musteriler.find(c=>c.id===x.customer_id);
+
+return `
+
+<div class="card">
+
+<div class="row">
+
+<b>${esc(m?.name||"Müşteri")}</b>
+
+<span>${esc(x.status)}</span>
+
+</div>
+
+<div>
+${new Date(x.scheduled_for)
+.toLocaleString("tr-TR")}
+</div>
+
+<div class="muted">
+${esc(x.channel)}
+</div>
+
+</div>
+
+`;
+
+}).join("")
+||
+"<p class='muted'>Planlı bakım yok.</p>";
+
+}
+
+db.auth.getSession()
+.then(({data})=>{
+
+if(data.session){
+
+kullanici=data.session.user;
+
+baslat();
+
+}
+
+});
+
+</script>
+
+</body>
+</html>
